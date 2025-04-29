@@ -32,7 +32,7 @@ const getImage = async (req, res) => {
 
   fs.stat("./uploads/products/" + img, function (error) {
     if (error) {
-      const imagePath = "./uploads/products/defaultimage.png";
+      const imagePath = "./uploads/products/notfound.jpg";
       res.status(200).sendFile(path.resolve(imagePath));
     } else {
       const imagePath = "./uploads/products/" + img;
