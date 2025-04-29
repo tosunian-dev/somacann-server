@@ -148,6 +148,7 @@ const saveShippingSettings = async (req, res) => {
             toShipperBranch : req.body.toShipperBranch,
             toBranch : req.body.toBranch ,
             freeShippingAmount : req.body.freeShippingAmount,
+            message : req.body.message,
             shippingCompany : req.body.shippingCompany
         })
         return res.status(200).json({msg:'Actualizado'})

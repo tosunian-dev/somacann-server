@@ -11,9 +11,11 @@ import axios from 'axios'
 
 const createCart = async (req, res) => {
     const cart = new Cart(req.body)
-    const product = await Product.findById({_id: cart.product})
-    if(req.body.amountOfProducts <= product.stock){
-        const savedCart = await cart.save()
+    console.log('cart', cart)
+    console.log('req.body', req.body)
+    const variant = await Variant.findById({_id: cart.variant})
+    if(req.body.amountOfProducts <= variant.stock){
+        const savedCart = await cart.save();
         return res.status(200).json(savedCart)
     } else{
         return res.status(200).json({msg: "No hay suficiente stock."})
@@ -22,7 +24,7 @@ const createCart = async (req, res) => {
 
 const getCart = async (req, res) => {
     const {user} = req.params
-    const cart = await Cart.find({client: user}).populate('product').sort({createdAt: -1})
+    const cart = await Cart.find({client: user}).populate('product').populate('variant').sort({createdAt: -1})
     return res.status(200).json(cart)
 }
 

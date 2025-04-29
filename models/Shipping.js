@@ -26,6 +26,10 @@ const shippingSchema = mongoose.Schema({
         required: false,
         default: 0
     },
+    message: {
+        type:String,
+        required: false
+    },
     shippingCompany: {
         type: String,
         required: true
