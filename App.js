@@ -50,7 +50,8 @@ connectDB()
 // Habilitar CORS 
 const dominiosPermitidos = [process.env.FRONTEND_URL, process.env.FRONTEND_URL_DEV, process.env.FRONTEND_PAGE_URL, process.env.FRONTEND_URL_DEV_2]
 
-app.use(cors({origin: dominiosPermitidos, credentials: true}))
+//app.use(cors({origin: dominiosPermitidos, credentials: true}))
+app.use(cors({ origin: '*' }));
 //
 const PORT = process.env.PORT || 4000
 
