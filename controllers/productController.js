@@ -6,9 +6,7 @@ import Subcategory from "../models/Subcategory.js";
 import slugify from "slugify";
 import fs from "fs";
 import path from "path";
-import { get } from "http";
-import { log } from "console";
-
+import { v2 as cloudinary } from "cloudinary";
 const products = async (req, res) => {
   const products = await Product.find()
     .where("seller")
@@ -74,17 +72,39 @@ const getOneProduct = async (req, res) => {
 const addProduct = async (req, res) => {
   /*const imgPath = req.files.image.path.split("\\")*/
   // DEPLOY PATH //
-  const imgPath = req.files.image.path.split("/");
-  const imgString = imgPath[2];
-
+  //const imgPath = req.files.image.path.split("/");
+  //const imgString = imgPath[2];
   const product = new Product(req.body);
+
   const slug = slugify(product.name).toLowerCase();
   product.slug = slug;
   product.seller = req.admin._id.toString();
-  product.image = imgString;
+
+  cloudinary.config({
+    cloud_name: "dtz5gvyex",
+    api_key: "117716636818335",
+    api_secret: "Q3jKmLuxiCVzt2ueGZC-HQFZ54M",
+  });
+  const file = req.files.image;
+
+  try {
+    const cloudinaryResponse = await cloudinary.uploader.upload(file.path);
+    product.image = cloudinaryResponse.secure_url;
+    product.imagePublicID = cloudinaryResponse.public_id;
+    //if (updatedCar.imagePublicID !== "") {
+    //  await cloudinary.uploader.destroy(product.imagePublicID);
+    //}
+  } catch (writeError) {
+    console.error("Error writing file:", writeError);
+    return res.status(500).json({ msg: "ERROR_WRITING_FILE" });
+  }
 
   try {
     const productSaved = await product.save();
+    // Eliminar archivo temporal del servidor
+    fs.unlink(file.path, (err) => {
+      if (err) console.error("Error deleting temp file:", err);
+    });
     return res.status(200).send(productSaved);
   } catch (error) {
     console.log(error);
@@ -115,12 +135,6 @@ const editProduct = async (req, res) => {
   const { id } = req.params;
   const product = await Product.findById(id);
 
-  if (req.files.image) {
-    const imgPath = req.files.image.path.split("/");
-    const imgString = imgPath[2];
-    product.image = imgString;
-  }
-
   if (!product) {
     return res.status(404).json({ msg: "Producto no encontrado" });
   }
@@ -129,12 +143,42 @@ const editProduct = async (req, res) => {
     return res.json({ msg: "Este producto no pertenece a tu stock" });
   }
 
+  cloudinary.config({
+    cloud_name: "dtz5gvyex",
+    api_key: "117716636818335",
+    api_secret: "Q3jKmLuxiCVzt2ueGZC-HQFZ54M",
+  });
+  const file = req.files.image;
+
+  if (file) {
+    try {
+      // Delete previous image
+      if (product.imagePublicID !== "") {
+        await cloudinary.uploader.destroy(product.imagePublicID);
+      }
+      const cloudinaryResponse = await cloudinary.uploader.upload(file.path);
+      product.image = cloudinaryResponse.secure_url;
+      product.imagePublicID = cloudinaryResponse.public_id;
+
+      // Delete picture from server
+      fs.unlink(file.path, (err) => {
+        if (err) console.error("Error deleting temp file:", err);
+      });
+    } catch (writeError) {
+      console.error("Error writing file:", writeError);
+      return res.status(500).json({ msg: "ERROR_WRITING_FILE" });
+    }
+  }
+
   product.name = req.body.name || product.name;
   product.category = req.body.category || product.category;
   product.subcategory = req.body.subcategory || product.subcategory;
   product.description = req.body.description || product.description;
   product.price = req.body.price || product.price;
-  product.image = req.body.image || product.image;
+  if (!file) {
+    product.image = req.body.image;
+    product.imagePublicID = req.body.imagePublicID;
+  }
   product.stock = req.body.stock || product.stock;
   product.forSale = req.body.forSale || product.forSale;
   product.discount = req.body.discount || product.discount;
@@ -192,13 +236,24 @@ const deleteVariantByStock = async (req, res) => {
 const addImageInGallery = async (req, res) => {
   /*const imgPath = req.files.image.path.split("\\")*/
   // DEPLOY PATH //
-  const imgPath = req.files.image.path.split("/");
-  const imgString = imgPath[2];
 
   const image = new ProductGallery(req.body);
-  image.image = imgString;
 
   try {
+    cloudinary.config({
+      cloud_name: "dtz5gvyex",
+      api_key: "117716636818335",
+      api_secret: "Q3jKmLuxiCVzt2ueGZC-HQFZ54M",
+    });
+    const file = req.files.image;
+    const cloudinaryResponse = await cloudinary.uploader.upload(file.path);
+    // Delete file from server storage
+    fs.unlink(file.path, (err) => {
+      if (err) console.error("Error deleting temp file:", err);
+    });
+    image.image = cloudinaryResponse.secure_url;
+    image.imagePublicID = cloudinaryResponse.public_id;
+
     const imageSaved = await image.save();
     return res.status(200).json(imageSaved);
   } catch (error) {
@@ -218,12 +273,7 @@ const deleteImgFromGallery = async (req, res) => {
 
   try {
     const imgToDelete = await ProductGallery.findById({ _id: id });
-    const imagePath = "./uploads/gallery/" + imgToDelete.image;
-
-    if (fs.existsSync(imagePath)) {
-      fs.unlinkSync(imagePath);
-    }
-
+    await cloudinary.uploader.destroy(imgToDelete.imagePublicID);
     const imageToDelete = await ProductGallery.deleteOne({ _id: id });
     return res.status(200).json(imageToDelete);
   } catch (error) {

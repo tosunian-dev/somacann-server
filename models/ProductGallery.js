@@ -11,6 +11,11 @@ const gallerySchema = mongoose.Schema({
         required: true,
         trim: true
     },
+    imagePublicID: {
+        type: String,
+        required: false,
+        default:""
+    },
     createdAt: {
         type: Date,
         default: Date.now()
