@@ -32,6 +32,11 @@ const productSchema = mongoose.Schema({
         default: 0,
         required: true
     },
+    hasVariant: {
+        type: Boolean,
+        default: false,
+        required: true,
+    },
     discount: {
         type: Boolean,
         required: false,

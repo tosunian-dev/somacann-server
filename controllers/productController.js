@@ -101,6 +101,22 @@ const addProduct = async (req, res) => {
 
   try {
     const productSaved = await product.save();
+
+    // busca el producto para crear una variante para administrar el stock
+    //const product = await product.findOne({ image: product.image });
+    //
+    //const variant = new Variant({
+    //  product: product._id,
+    //  provider: "",
+    //  variant: "",
+    //  skuCode: "",
+    //  stock: 0,
+    //  onlyVariant: true,
+    //  onlyVariantActive: true,
+    //});
+    //
+    //await variant.save();
+
     // Eliminar archivo temporal del servidor
     fs.unlink(file.path, (err) => {
       if (err) console.error("Error deleting temp file:", err);
@@ -198,6 +214,18 @@ const editProduct = async (req, res) => {
 
 const saveVariant = async (req, res) => {
   const variant = new Variant(req.body);
+
+  // busca si hay variantes creadas para activar las variantes
+  //const existingVariants = await variant.find({ product: variant.product });
+  //
+  //for (i = 0; i < existingVariants.length; i++) {
+  //  if (
+  //    existingVariants[i].onlyVariant &&
+  //    existingVariants[i].onlyVariantActive
+  //  ) {
+  //  }
+  //}
+
   try {
     const variantSaved = await variant.save();
     res.status(200).json(variantSaved);

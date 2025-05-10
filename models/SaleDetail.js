@@ -25,10 +25,10 @@ const saleDetailSchema = mongoose.Schema({
         type: Schema.ObjectId, ref: 'Product',
         required: true
     },
-    /*variant: {
+    variant: {
         type: Schema.ObjectId, ref: 'Variant',
-        required: true
-    },*/
+        required: false
+    },
     year: {
         type: Number,
         required: true

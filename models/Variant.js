@@ -25,6 +25,15 @@ const variantSchema = mongoose.Schema({
         default: 0,
         required: true
     },
+    //onlyVariant:{
+    //    type: Boolean, 
+    //    required: true
+    //},
+    //onlyVariantActive:{
+    //    type:Boolean,
+    //    required: true,
+    //    default: false
+    //},
     createdAt: {
         type: Date,
         default: Date.now()
