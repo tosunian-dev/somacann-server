@@ -88,7 +88,7 @@ const getSaleAfterPayment = async (req, res) => {
 
 const createSale = async (req, res) => {
   const sale = new Sale(req.body);
-  console.log('sale request',req.body);
+  console.log("sale request", req.body);
   sale.year = new Date().getFullYear();
   sale.month = new Date().getMonth() + 1;
   sale.day = new Date().getDate();
@@ -111,7 +111,7 @@ const createSale = async (req, res) => {
 
 const saleVerification = async (req, res) => {
   const paymentInfo = req.body;
-  console.log(paymentInfo)
+  console.log("webhook payment info: ", paymentInfo);
   // GET PAYMENT INFO BY ID //
   axios
     .get("https://api.mercadopago.com/v1/payments/" + paymentInfo.data.id, {
@@ -122,6 +122,7 @@ const saleVerification = async (req, res) => {
     })
     .then(async (response) => {
       const { data } = response;
+      console.log("mp getpayment response", data);
       const saleToUpdate = await Sale.findOne({ _id: data.metadata.sale_id });
       saleToUpdate.transaction = data.id;
       // PAYMENT PENDING //
