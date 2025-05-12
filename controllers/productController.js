@@ -216,18 +216,21 @@ const saveVariant = async (req, res) => {
   const variant = new Variant(req.body);
 
   // busca si hay variantes creadas para activar las variantes
-  //const existingVariants = await variant.find({ product: variant.product });
-  //
-  //for (i = 0; i < existingVariants.length; i++) {
-  //  if (
-  //    existingVariants[i].onlyVariant &&
-  //    existingVariants[i].onlyVariantActive
-  //  ) {
-  //  }
-  //}
+  const existingVariants = await Variant.find({ product: variant.product });
 
   try {
+    // guarda la variante
     const variantSaved = await variant.save();
+
+    // si se creo una variante por primera vez, cambia product.hasVariant = true
+    if (existingVariants.length == 0) {
+      await Product.findByIdAndUpdate(
+        { _id: variant.product },
+        { hasVariant: true, stock: 0 }
+      );
+      console.log("hasvariant = false");
+    }
+
     res.status(200).json(variantSaved);
   } catch (error) {
     console.log(error);
@@ -246,15 +249,24 @@ const getProductVariants = async (req, res) => {
 
 const deleteVariantByStock = async (req, res) => {
   const { id } = req.params;
+
   try {
     const variant = await Variant.findOneAndRemove({ _id: id });
-    const product = await Product.findById({ _id: variant.product });
-    await Product.findByIdAndUpdate(
-      { _id: variant.product },
-      {
-        stock: product.stock - variant.stock,
-      }
-    );
+
+    // busca si hay variantes creadas para desactivar las variantes
+    const existingVariants = await Variant.find({
+      product: variant.product,
+    });
+
+    // si se eliminó una variante y no hay mas, cambia product.hasVariant = false
+    if (existingVariants.length == 0) {
+      await Product.findByIdAndUpdate(
+        { _id: variant.product },
+        { hasVariant: false, stock: 0 }
+      );
+      console.log("hasvariant = true");
+    }
+
     return res.status(200).json(variant);
   } catch (error) {
     console.log(error);

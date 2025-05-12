@@ -146,9 +146,21 @@ const saleVerification = async (req, res) => {
         });
         for (const item of saleDetails) {
           try {
-            const product = await Product.findById(item.product);
-            const newStock = product.stock - item.items;
-            await Product.findByIdAndUpdate(item.product, { stock: newStock });
+            if (item.variant) {
+              const variant = await Variant.findById(item.variant);
+              newStock = variant.stock - item.items;
+              await Variant.findByIdAndUpdate(item.variant, {
+                stock: newStock,
+              });
+            }
+
+            if (!item.variant) {
+              const product = await Product.findById(item.product);
+              const newStock = product.stock - item.items;
+              await Product.findByIdAndUpdate(item.product, {
+                stock: newStock,
+              });
+            }
             console.log("stock updated");
           } catch (error) {
             console.log("stock cannot be updated");

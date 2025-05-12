@@ -30,7 +30,7 @@ const productSchema = mongoose.Schema({
     stock: {
         type: Number,
         default: 0,
-        required: true
+        required: false
     },
     hasVariant: {
         type: Boolean,
