@@ -148,11 +148,10 @@ const saleVerification = async (req, res) => {
           try {
             console.log("item.variant", item.variant);
             console.log("item", item);
-            if (item.variant.stock ) {
+            if (item.variant) {
               const variant = await Variant.findById(item.variant);
-              console.log('variant', variant);
-              newStock = variant.stock - item.items;
-              await Variant.findByIdAndUpdate({_id: variant._id}, {
+              const newStock = variant.stock - item.items;
+              await Variant.findByIdAndUpdate(item.variant, {
                 stock: newStock,
               });
             }
