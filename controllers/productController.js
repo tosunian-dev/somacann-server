@@ -228,7 +228,6 @@ const saveVariant = async (req, res) => {
         { _id: variant.product },
         { hasVariant: true, stock: 0 }
       );
-      console.log("hasvariant = false");
     }
 
     res.status(200).json(variantSaved);
@@ -244,6 +243,16 @@ const getProductVariants = async (req, res) => {
     return res.status(200).json(variants);
   } catch (error) {
     console.log(error);
+  }
+};
+
+const editVariant = async (req, res) => {
+  const editedVariant = req.body;
+  try {
+    await Variant.findByIdAndUpdate(editedVariant._id, editedVariant);
+    return res.status(200);
+  } catch {
+    return res.status(400).json({ msg: "ERROR_EDITING_VARIANT" });
   }
 };
 
@@ -264,7 +273,6 @@ const deleteVariantByStock = async (req, res) => {
         { _id: variant.product },
         { hasVariant: false, stock: 0 }
       );
-      console.log("hasvariant = true");
     }
 
     return res.status(200).json(variant);
@@ -428,4 +436,5 @@ export {
   createSubcategory,
   deleteSubcategory,
   deleteCategory,
+  editVariant
 };
