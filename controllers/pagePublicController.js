@@ -38,28 +38,28 @@ const getMostWantedProducts = async (req, res) => {
 
 const getAllProducts = async (req, res) => {
     const productsData = []
-    const latestProducts = await Product.find({forSale: true}).sort({createdAt: -1})
+    const latestProducts = await Product.find({forSale: true});//.sort({createdAt: -1})
     
-    for(const product of latestProducts){
-        const variants = await Variant.find({product: product._id})
-        productsData.push({
-            name: product.name ,
-            category: product.category,
-            subcategory: product.subcategory,
-            price: product.price,
-            image: product.image,
-            discount: product.discount,
-            description: product.description,
-            seller: product.seller,
-            slug: product.slug,
-            forSale: product.forSale ,
-            str_variant: product.str_variant,
-            createdAt: product.createdAt,
-            variants
-        })
-    }
+    //for(const product of latestProducts){
+    //    const variants = await Variant.find({product: product._id})
+    //    productsData.push({
+    //        name: product.name ,
+    //        category: product.category,
+    //        subcategory: product.subcategory,
+    //        price: product.price,
+    //        image: product.image,
+    //        discount: product.discount,
+    //        description: product.description,
+    //        seller: product.seller,
+    //        slug: product.slug,
+    //        forSale: product.forSale ,
+    //        str_variant: product.str_variant,
+    //        createdAt: product.createdAt,
+    //        variants
+    //    })
+    //}
 
-    res.status(200).json(productsData)
+    res.status(200).json(latestProducts)
 }
 
 const getAllCategories = async (req, res) => {
